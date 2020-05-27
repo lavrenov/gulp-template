@@ -1,7 +1,10 @@
-// Переопределение дефолтных значений переменных Bootstrap 4 и Fontawesome 5
+// Шрифты
+@import "fonts";
+
+// Переменные Bootstrap 4
 @import "variables";
 
-// Подключение нужных SCSS исходников Bootstrap 4
+// Bootstrap 4
 @import "../../node_modules/bootstrap/scss/_functions";
 @import "../../node_modules/bootstrap/scss/_variables";
 @import "../../node_modules/bootstrap/scss/_mixins";
@@ -40,4 +43,11 @@
 @import "../../node_modules/bootstrap/scss/_utilities";
 @import "../../node_modules/bootstrap/scss/_print";
 
+// OwlCarousel 2
+@import "../../node_modules/owl.carousel2/src/scss/owl.carousel";
+
+// FancyBox
+@import "../../node_modules/@fancyapps/fancybox/dist/jquery.fancybox.css";
+
 // Подключение своих SCSS файлов
+@import "custom";
