@@ -39,7 +39,7 @@ let gulp = require('gulp'),
         default: "development",
         verbose: false
     }),
-    webServer = require('browser-sync').create(),
+    webServer = require('browser-sync'),
     plumber = require('gulp-plumber'),
     rigger = require('gulp-rigger'),
     sourcemaps = require('gulp-sourcemaps'),
@@ -55,12 +55,23 @@ let gulp = require('gulp'),
 
 // Tasks
 
+// start server
+gulp.task('server', function () {
+    webServer({
+        server: {
+            baseDir: './dist'
+        },
+        notify: false
+    });
+});
+
 // html build
 gulp.task('html:build', function () {
     return gulp.src(path.src.html)
         .pipe(plumber())
         .pipe(rigger())
-        .pipe(gulp.dest(path.dist.html));
+        .pipe(gulp.dest(path.dist.html))
+        .pipe(webServer.reload({ stream: true }));
 });
 
 // sass build
@@ -82,7 +93,8 @@ gulp.task('sass:build', function () {
         }))
         .pipe(cleanCSS(options))
         .pipe(mode.development(sourcemaps.write('./')))
-        .pipe(gulp.dest(path.dist.css));
+        .pipe(gulp.dest(path.dist.css))
+        .pipe(webServer.stream());
 });
 
 // js build
@@ -93,7 +105,8 @@ gulp.task('js:build', function () {
         .pipe(mode.development(sourcemaps.init()))
         .pipe(mode.production(uglify()))
         .pipe(mode.development(sourcemaps.write('./')))
-        .pipe(gulp.dest(path.dist.js));
+        .pipe(gulp.dest(path.dist.js))
+        .pipe(webServer.reload({ stream: true }));
 });
 
 // fonts build
@@ -144,19 +157,15 @@ gulp.task('build',
 
 // watch
 gulp.task('watch', function () {
-    webServer.init({
-        server: './dist',
-        notify: true,
-        open: true,
-        cors: true,
-    });
-
-    gulp.watch(path.watch.html, gulp.series('html:build')).on('change', webServer.reload);
-    gulp.watch(path.watch.sass, gulp.series('sass:build')).on('change', webServer.reload);
-    gulp.watch(path.watch.js, gulp.series('js:build')).on('change', webServer.reload);
+    gulp.watch(path.watch.html, gulp.series('html:build'));
+    gulp.watch(path.watch.sass, gulp.series('sass:build'));
+    gulp.watch(path.watch.js, gulp.series('js:build'));
     gulp.watch(path.watch.img, gulp.series('image:build'));
     gulp.watch(path.watch.fonts, gulp.series('fonts:build'));
 });
 
 // default
-gulp.task('default', gulp.series('build', 'watch'));
+gulp.task('default', gulp.series(
+    'build',
+    gulp.parallel('server', 'watch')
+));
